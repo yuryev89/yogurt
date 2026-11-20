@@ -5,7 +5,7 @@ import { WidgetModel } from './widgetModel'
 import { onRecordingEvent, recordingFinished } from './capture'
 import { onMeetingChange, onMeetingStart, onMeetingStop, stopSavePending } from './meeting'
 import type { WidgetView } from '../shared/types'
-import { floatingType, floatOverFullScreen } from './float'
+import { floatingType } from './float'
 import { isFake } from './paths'
 import { t, onLanguage } from '../shared/i18n'
 import { widgetLayout, widgetDragLayout, widgetRestLayout, widgetContains, type WidgetSurface, type WidgetLayout } from '../shared/widgetMorph'
@@ -40,7 +40,8 @@ function createWindow(os = 'darwin'): BrowserWindow {
     skipTaskbar: true, focusable: false, acceptFirstMouse: true, show: false,
     webPreferences: { preload: join(__dirname, '../preload/index.cjs'), sandbox: false, backgroundThrottling: false },
   })
-  floatOverFullScreen(w)
+  // The pill stays a normal-level window so other apps can cover it, instead of floating over everything.
+  w.setAlwaysOnTop(false)
   w.setIgnoreMouseEvents(true, { forward: true })
   const hash = 'widget'
   if (process.env.ELECTRON_RENDERER_URL) void w.loadURL(`${process.env.ELECTRON_RENDERER_URL}#${hash}`)

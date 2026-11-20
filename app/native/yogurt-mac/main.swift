@@ -406,13 +406,21 @@ case "calendar-auth":
   out(["status": status()])
 case "calendars":
   needAccess()
-  out(store.calendars(for: .event).map { c in
-    var row = ["id": c.calendarIdentifier, "name": c.title, "source": c.source.title]
+  let rows: [[String: String]] = store.calendars(for: .event).map { (c: EKCalendar) -> [String: String] in
+    var row: [String: String] = ["id": c.calendarIdentifier, "name": c.title, "source": c.source.title]
     if let color = NSColor(cgColor: c.cgColor)?.usingColorSpace(.sRGB) {
-      row["color"] = String(format: "#%02X%02X%02X", Int((color.redComponent * 255).rounded()), Int((color.greenComponent * 255).rounded()), Int((color.blueComponent * 255).rounded()))
+      let r: Int = Int((color.redComponent * 255).rounded())
+      let g: Int = Int((color.greenComponent * 255).rounded())
+      let b: Int = Int((color.blueComponent * 255).rounded())
+      row["color"] = String(format: "#%02X%02X%02X", r, g, b)
     }
     return row
-  }.sorted { ($0["source"]! + $0["name"]!) < ($1["source"]! + $1["name"]!) })
+  }
+  out(rows.sorted { (a: [String: String], b: [String: String]) -> Bool in
+    let ka: String = (a["source"] ?? "") + (a["name"] ?? "")
+    let kb: String = (b["source"] ?? "") + (b["name"] ?? "")
+    return ka < kb
+  })
 case "events":
   needAccess()
   guard args.count >= 3 else { fail("events FROM TO") }
